@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>차량 내비게이션</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #e8eaed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .overlay-container {
+            background: #f0f1f3;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .header {
+            background: #1f1f1f;
+            padding: 16px 20px;
+            position: relative;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .top-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .top-icon .material-icons {
+            font-size: 24px;
+        }
+
+        .top-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .top-icon:active {
+            transform: scale(0.95);
+        }
+
+        .top-icon.app-icon {
+            padding: 12px;
+        }
+
+        .status-area {
+            background: white;
+            padding: 20px;
+        }
+
+        .destination-info {
+            background: #f0f1f3;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .dest-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .dest-text {
+            font-size: 15px;
+            color: #1f1f1f;
+            font-weight: 500;
+        }
+
+        .permission-alert-area {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .permission-alert-area:hover {
+            background: #fee2e2;
+        }
+
+        .perm-icon-small {
+            width: 32px;
+            height: 32px;
+            background: #fee2e2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .perm-icon-small .material-icons {
+            font-size: 18px;
+            color: #dc2626;
+        }
+
+        .perm-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .perm-title-small {
+            font-size: 13px;
+            font-weight: 600;
+            color: #991b1b;
+        }
+
+        .perm-desc-small {
+            font-size: 11px;
+            color: #b91c1c;
+        }
+
+        .speed-display {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 20px;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .speed-display.visible {
+            opacity: 1;
+        }
+
+        .speed-value {
+            color: #4af;
+            font-size: 32px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .speed-unit {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .destination-box {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .dest-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .dest-text {
+            color: white;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .timer-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #8b7fdb;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(139, 127, 219, 0.3);
+        }
+
+        .control-section {
+            padding: 20px;
+        }
+
+        .mode-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 6px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-tab.active {
+            background: #4285f4;
+            color: white;
+            box-shadow: 0 2px 6px rgba(66, 133, 244, 0.3);
+        }
+
+        .expand-btn {
+            width: 100%;
+            background: white;
+            border: none;
+            border-radius: 16px;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6cdb;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .expand-btn:hover {
+            background: #5f6cdb;
+            color: white;
+        }
+
+        .arrow {
+            transition: transform 0.3s;
+        }
+
+        .overlay-container.collapsed .arrow {
+            transform: rotate(180deg);
+        }
+
+        .expandable {
+            max-height: 2000px;
+            opacity: 1;
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+
+        .overlay-container.collapsed .expandable {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        .section {
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #6b7280;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 3px;
+            height: 14px;
+            background: #5f6cdb;
+            border-radius: 2px;
+        }
+
+        .location-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .location-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .location-card:active {
+            transform: scale(0.97);
+        }
+
+        .loc-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+        
+        .loc-icon .material-icons {
+            font-size: 24px;
+        }
+
+        .loc-icon.home { 
+            background: #e8f0fe;
+            color: #4285f4;
+        }
+        .loc-icon.work { 
+            background: #e8f0fe;
+            color: #4285f4;
+        }
+        .loc-icon.recent { 
+            background: #e8f0fe;
+            color: #4285f4;
+        }
+        .loc-icon.star { 
+            background: #e8f0fe;
+            color: #4285f4;
+        }
+
+        .loc-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c2c2c;
+            margin-bottom: 4px;
+        }
+
+        .loc-subtitle {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 2px;
+        }
+
+        .loc-time {
+            font-size: 11px;
+            color: #d1d5db;
+        }
+
+        .chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            background: white;
+            border-radius: 20px;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c2c2c;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chip:active {
+            transform: scale(0.95);
+        }
+
+        .chip-emoji {
+            font-size: 16px;
+        }
+
+        .hold-options {
+            background: white;
+            border-radius: 20px;
+            padding: 16px;
+            margin-top: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .hold-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .hold-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .hold-btn {
+            padding: 10px;
+            background: #f5f6f8;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .hold-btn:active {
+            transform: scale(0.95);
+        }
+
+        .hold-btn.active {
+            background: #5f6cdb;
+            color: white;
+            border-color: #5f6cdb;
+        }
+
+        .music-player {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .track-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .album-art {
+            width: 56px;
+            height: 56px;
+            background: #e8f0fe;
+            color: #4285f4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+        
+        .album-art .material-icons {
+            font-size: 28px;
+        }
+
+        .track-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .track-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #2c2c2c;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist {
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        .bt-btn {
+            width: 40px;
+            height: 40px;
+            background: #f0f1f3;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bt-btn:active {
+            transform: scale(0.95);
+        }
+
+        .playback-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .control-btn {
+            width: 48px;
+            height: 48px;
+            background: #f0f1f3;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .control-btn .material-icons {
+            font-size: 24px;
+        }
+
+        .control-btn.play {
+            width: 56px;
+            height: 56px;
+            background: #4285f4;
+            color: white;
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        }
+        
+        .control-btn.play .material-icons {
+            font-size: 28px;
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 480px) {
+            .overlay-container {
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay-container" id="overlay">
+        <div class="header">
+            <div class="timer-badge" id="timerBadge">자동 실행 5초</div>
+            
+            <div class="speed-display" id="speedDisplay">
+                <span class="speed-value" id="speedValue">67</span>
+                <span class="speed-unit">km/h</span>
+            </div>
+            
+            <!-- 상단 아이콘 영역 -->
+            <div class="top-actions">
+                <button class="top-icon" data-dest="집" title="집">
+                    <span class="material-icons">home</span>
+                </button>
+                <button class="top-icon" data-dest="회사" title="회사">
+                    <span class="material-icons">business</span>
+                </button>
+                <button class="top-icon app-icon" title="티맵">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234285f4'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z'/%3E%3C/svg%3E" alt="티맵" style="width: 24px; height: 24px;">
+                </button>
+                <button class="top-icon" id="searchBtn" title="검색">
+                    <span class="material-icons">search</span>
+                </button>
+                <button class="top-icon" id="saveLocationBtn" title="현재위치 저장">
+                    <span class="material-icons">add_location</span>
+                </button>
+                <button class="top-icon" id="minimizeBtn" title="축소">
+                    <span class="material-icons">remove</span>
+                </button>
+                <button class="top-icon" id="closeBtn" title="닫기">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 상태/안내 영역 -->
+        <div class="status-area">
+            <div class="destination-info">
+                <div class="dest-label">목적지</div>
+                <div class="dest-text" id="destText">목적지를 선택해주세요</div>
+            </div>
+            
+            <div class="permission-alert-area" id="permissionAlert">
+                <div class="perm-icon-small">
+                    <span class="material-icons">warning</span>
+                </div>
+                <div class="perm-text">
+                    <span class="perm-title-small">권한 설정 필요</span>
+                    <span class="perm-desc-small">위치, 접근성 권한을 활성화해주세요</span>
+                </div>
+                <span class="material-icons" style="font-size: 18px; opacity: 0.5;">chevron_right</span>
+            </div>
+        </div>
+
+        <div class="control-section">
+            <div class="mode-tabs">
+                <button class="mode-tab active">최근 목적지</button>
+                <button class="mode-tab">즐겨찾기</button>
+            </div>
+
+            <button class="expand-btn" id="expandBtn">
+                <span>상세 메뉴</span>
+                <span class="arrow">▼</span>
+            </button>
+        </div>
+
+        <div class="expandable">
+            <!-- 최근 목적지 탭 내용 -->
+            <div class="section tab-content" id="recentTab">
+                <div class="location-cards">
+                    <!-- 집 - 고정 -->
+                    <div class="location-card" data-dest="집">
+                        <div class="loc-icon home"><span class="material-icons">home</span></div>
+                        <div class="loc-title">집</div>
+                        <div class="loc-subtitle">거리가 확인되지...</div>
+                        <div class="loc-time">집 · 고정</div>
+                        <div class="loc-time">최근 방문</div>
+                    </div>
+                    <!-- 회사 - 고정 -->
+                    <div class="location-card" data-dest="회사">
+                        <div class="loc-icon work"><span class="material-icons">business</span></div>
+                        <div class="loc-title">회사</div>
+                        <div class="loc-subtitle">거리가 확인되지...</div>
+                        <div class="loc-time">회사 · 고정</div>
+                        <div class="loc-time">최근 방문</div>
+                    </div>
+                    <!-- 최근 목적지들 -->
+                    <div class="location-card" data-dest="강남역 2번 출구">
+                        <div class="loc-icon recent"><span class="material-icons">place</span></div>
+                        <div class="loc-title">강남역 2번 출구</div>
+                        <div class="loc-subtitle">서울 강남구 강남대로</div>
+                        <div class="loc-time">최근 목적지</div>
+                        <div class="loc-time">1시간 전 방문</div>
+                    </div>
+                    <div class="location-card" data-dest="이마트 죽전점">
+                        <div class="loc-icon recent"><span class="material-icons">place</span></div>
+                        <div class="loc-title">이마트 죽전점</div>
+                        <div class="loc-subtitle">경기 용인시 수지구</div>
+                        <div class="loc-time">최근 목적지</div>
+                        <div class="loc-time">2시간 전 방문</div>
+                    </div>
+                    <div class="location-card" data-dest="CGV 용산아이파크몰">
+                        <div class="loc-icon recent"><span class="material-icons">place</span></div>
+                        <div class="loc-title">CGV 용산아이파크몰</div>
+                        <div class="loc-subtitle">서울 용산구 한강대로</div>
+                        <div class="loc-time">최근 목적지</div>
+                        <div class="loc-time">5시간 전 방문</div>
+                    </div>
+                    <div class="location-card" data-dest="현대백화점 판교점">
+                        <div class="loc-icon recent"><span class="material-icons">place</span></div>
+                        <div class="loc-title">현대백화점 판교점</div>
+                        <div class="loc-subtitle">경기 성남시 분당구</div>
+                        <div class="loc-time">최근 목적지</div>
+                        <div class="loc-time">1일 전 방문</div>
+                    </div>
+                    <div class="location-card" data-dest="올림픽공원">
+                        <div class="loc-icon recent"><span class="material-icons">place</span></div>
+                        <div class="loc-title">올림픽공원</div>
+                        <div class="loc-subtitle">서울 송파구 올림픽로</div>
+                        <div class="loc-time">최근 목적지</div>
+                        <div class="loc-time">2일 전 방문</div>
+                    </div>
+                    <div class="location-card" data-dest="스타벅스 강남점">
+                        <div class="loc-icon recent"><span class="material-icons">place</span></div>
+                        <div class="loc-title">스타벅스 강남점</div>
+                        <div class="loc-subtitle">서울 강남구 테헤란로</div>
+                        <div class="loc-time">최근 목적지</div>
+                        <div class="loc-time">3일 전 방문</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 즐겨찾기 탭 내용 -->
+            <div class="section tab-content" id="favoriteTab" style="display: none;">
+                <div class="location-cards">
+                    <div class="location-card" data-dest="서해박속낙지전문점">
+                        <div class="loc-icon star"><span class="material-icons">star</span></div>
+                        <div class="loc-title">서해박속낙지전<br>문점</div>
+                        <div class="loc-subtitle">서울 강남구 논현동</div>
+                        <div class="loc-time">즐겨찾기</div>
+                        <div class="loc-time">최근 방문</div>
+                    </div>
+                    <div class="location-card" data-dest="서울대학교병원 정문">
+                        <div class="loc-icon star"><span class="material-icons">star</span></div>
+                        <div class="loc-title">서울대학교병원<br>정문</div>
+                        <div class="loc-subtitle">서울 종로구 대학로</div>
+                        <div class="loc-time">즐겨찾기</div>
+                        <div class="loc-time">최근 방문</div>
+                    </div>
+                    <div class="location-card" data-dest="천양산가족캠핑장">
+                        <div class="loc-icon star"><span class="material-icons">star</span></div>
+                        <div class="loc-title">천양산가족캠핑<br>장</div>
+                        <div class="loc-subtitle">경기 안성시 죽산면</div>
+                        <div class="loc-time">즐겨찾기</div>
+                        <div class="loc-time">최근 목적지</div>
+                    </div>
+                    <div class="location-card" data-dest="중앙대학교광명병원">
+                        <div class="loc-icon star"><span class="material-icons">star</span></div>
+                        <div class="loc-title">중앙대학교광명<br>병원</div>
+                        <div class="loc-subtitle">경기 광명시 덕안로</div>
+                        <div class="loc-time">즐겨찾기</div>
+                        <div class="loc-time">최근 목적지</div>
+                    </div>
+                    <div class="location-card" data-dest="코스트코 양재점">
+                        <div class="loc-icon star"><span class="material-icons">star</span></div>
+                        <div class="loc-title">코스트코 양재점</div>
+                        <div class="loc-subtitle">서울 서초구 매헌로</div>
+                        <div class="loc-time">즐겨찾기</div>
+                        <div class="loc-time">1주일 전 방문</div>
+                    </div>
+                    <div class="location-card" data-dest="롯데백화점 본점">
+                        <div class="loc-icon star"><span class="material-icons">star</span></div>
+                        <div class="loc-title">롯데백화점 본점</div>
+                        <div class="loc-subtitle">서울 중구 남대문로</div>
+                        <div class="loc-time">즐겨찾기</div>
+                        <div class="loc-time">2주일 전 방문</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 목적지 보류 영역 -->
+            <div class="section">
+                <div class="section-title">목적지 보류</div>
+                <div class="hold-options">
+                    <div class="hold-label">내비 실행 보류 시간 설정</div>
+                    <div class="hold-grid">
+                        <button class="hold-btn">즉시</button>
+                        <button class="hold-btn">1분</button>
+                        <button class="hold-btn">5분</button>
+                        <button class="hold-btn active">10분</button>
+                        <button class="hold-btn">30분</button>
+                        <button class="hold-btn">1시간</button>
+                        <button class="hold-btn">2시간</button>
+                        <button class="hold-btn">취소</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 음악 재생 영역 -->
+            <div class="section">
+                <div class="section-title">음악 재생</div>
+                <div class="music-player">
+                    <div class="track-info">
+                        <div class="album-art"><span class="material-icons">music_note</span></div>
+                        <div class="track-details">
+                            <div class="track-title">Blinding Lights</div>
+                            <div class="track-artist">The Weeknd</div>
+                        </div>
+                        <div class="bt-btn"><span class="material-icons" style="font-size: 20px;">volume_up</span></div>
+                    </div>
+                    <div class="playback-controls">
+                        <button class="control-btn"><span class="material-icons">skip_previous</span></button>
+                        <button class="control-btn play" id="playBtn"><span class="material-icons">play_arrow</span></button>
+                        <button class="control-btn"><span class="material-icons">skip_next</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const overlay = document.getElementById('overlay');
+        const expandBtn = document.getElementById('expandBtn');
+        const playBtn = document.getElementById('playBtn');
+        const timerBadge = document.getElementById('timerBadge');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const speedValue = document.getElementById('speedValue');
+        const destText = document.getElementById('destText');
+        const closeBtn = document.getElementById('closeBtn');
+
+        let isPlaying = false;
+        let countdown = 5;
+        let isMoving = false;
+        let speedHideTimeout;
+
+        // Toggle expand
+        expandBtn.addEventListener('click', () => {
+            overlay.classList.toggle('collapsed');
+        });
+
+        // Mode tabs
+        const recentTab = document.getElementById('recentTab');
+        const favoriteTab = document.getElementById('favoriteTab');
+        
+        document.querySelectorAll('.mode-tab').forEach((tab, index) => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show appropriate content
+                if (index === 0) { // 최근 목적지
+                    recentTab.style.display = 'block';
+                    favoriteTab.style.display = 'none';
+                } else { // 즐겨찾기
+                    recentTab.style.display = 'none';
+                    favoriteTab.style.display = 'block';
+                }
+            });
+        });
+
+        // Top action buttons
+        document.querySelectorAll('.top-icon[data-dest]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const dest = this.getAttribute('data-dest');
+                if (dest) {
+                    destText.textContent = `${dest}(으)로 출발합니다`;
+                    simulateMoving();
+                }
+            });
+        });
+        
+        // Search button
+        document.getElementById('searchBtn')?.addEventListener('click', () => {
+            alert('검색 화면으로 이동합니다');
+        });
+        
+        // Save location button
+        document.getElementById('saveLocationBtn')?.addEventListener('click', () => {
+            alert('현재 위치를 저장합니다');
+        });
+        
+        // Minimize button
+        document.getElementById('minimizeBtn')?.addEventListener('click', () => {
+            overlay.classList.add('collapsed');
+        });
+        
+        // Close button
+        document.getElementById('closeBtn')?.addEventListener('click', () => {
+            overlay.style.transform = 'scale(0.95)';
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                alert('오버레이를 종료합니다');
+                overlay.style.transform = '';
+                overlay.style.opacity = '1';
+            }, 300);
+        });
+
+        // Location cards - updated to work with data-dest attribute
+        document.querySelectorAll('.location-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const dest = this.getAttribute('data-dest');
+                if (dest) {
+                    destText.textContent = `${dest}(으)로 출발합니다`;
+                    simulateMoving();
+                }
+            });
+        });
+
+        // Hold buttons
+        document.querySelectorAll('.hold-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.hold-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Play/pause
+        playBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            const icon = playBtn.querySelector('.material-icons');
+            icon.textContent = isPlaying ? 'pause' : 'play_arrow';
+        });
+
+        // Timer countdown
+        const timerInterval = setInterval(() => {
+            countdown--;
+            if (countdown <= 0) {
+                timerBadge.style.opacity = '0';
+                setTimeout(() => {
+                    timerBadge.style.display = 'none';
+                }, 300);
+                clearInterval(timerInterval);
+            } else {
+                timerBadge.textContent = `자동 실행 ${countdown}초`;
+            }
+        }, 1000);
+
+        // Simulate moving (speed display)
+        function simulateMoving() {
+            if (isMoving) return;
+            
+            isMoving = true;
+            speedDisplay.classList.add('visible');
+            
+            // Clear existing timeout
+            clearTimeout(speedHideTimeout);
+            
+            // Animate speed
+            let currentSpeed = 0;
+            const speedInterval = setInterval(() => {
+                currentSpeed += Math.floor(Math.random() * 10) + 5;
+                if (currentSpeed > 70) currentSpeed = Math.floor(Math.random() * 20) + 50;
+                speedValue.textContent = currentSpeed;
+            }, 500);
+            
+            // Hide after 5 seconds
+            speedHideTimeout = setTimeout(() => {
+                speedDisplay.classList.remove('visible');
+                clearInterval(speedInterval);
+                isMoving = false;
+            }, 5000);
+        }
+
+        // Auto simulate moving after 3 seconds for demo
+        setTimeout(() => {
+            simulateMoving();
+        }, 3000);
+    </script>
+</body>
+</html>
