@@ -239,6 +239,7 @@
             opacity: 0;
             transition: opacity 0.3s ease;
             pointer-events: none;
+            z-index: 10001;
         }
 
         .speed-display.visible {
@@ -274,19 +275,6 @@
             color: white;
             font-size: 15px;
             font-weight: 500;
-        }
-
-        .timer-badge {
-            margin-top: 10px;
-            margin-left: auto;
-            width: fit-content;
-            background: #3557c6;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            box-shadow: 0 2px 8px rgba(53, 87, 198, 0.26);
         }
 
         .control-section {
@@ -779,6 +767,44 @@
             letter-spacing: -0.02em;
         }
 
+        body.theme-dark {
+            background: #0f1115;
+        }
+
+        body.theme-dark .overlay-container {
+            background: #1d2430;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        body.theme-dark .header {
+            background: #273041;
+            border-bottom-color: #3e4a61;
+        }
+
+        body.theme-dark .top-icon {
+            background: #2d3748;
+            border-color: #4b5a75;
+            color: #e2e8f0;
+        }
+
+        body.theme-dark .status-area {
+            background: #1f2734;
+            border-color: #334155;
+        }
+
+        body.theme-dark .destination-info {
+            background: #293445;
+            border-color: #475569;
+        }
+
+        body.theme-dark .dest-label {
+            color: #cbd5e1;
+        }
+
+        body.theme-dark .dest-text {
+            color: #f8fafc;
+        }
+
         @media (max-width: 480px) {
             .overlay-container {
                 border-radius: 0;
@@ -849,14 +875,14 @@
             
             <div class="toolbar-row">
                 <div class="top-group left">
-                    <button class="top-icon" data-dest="집" title="집">
-                        <span class="material-icons">home</span>
+                    <button class="top-icon" id="themeBtn" title="다크 테마">
+                        <span class="material-icons">dark_mode</span>
                     </button>
-                    <button class="top-icon" data-dest="회사" title="회사">
-                        <span class="material-icons">business</span>
+                    <button class="top-icon" id="minimizeBtn" title="축소">
+                        <span class="material-icons">fullscreen_exit</span>
                     </button>
-                    <button class="top-icon app-icon" title="티맵">
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234285f4'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z'/%3E%3C/svg%3E" alt="티맵" style="width: 24px; height: 24px;">
+                    <button class="top-icon app-icon" id="tmapAppBtn" title="티맵">
+                        <img id="tmapIconImg" alt="티맵" style="width: 24px; height: 24px;">
                     </button>
                 </div>
                 <div class="toolbar-handle" aria-hidden="true"></div>
@@ -867,15 +893,11 @@
                     <button class="top-icon" id="saveLocationBtn" title="현재위치 저장">
                         <span class="material-icons">add_location</span>
                     </button>
-                    <button class="top-icon" id="minimizeBtn" title="축소">
-                        <span class="material-icons">remove</span>
-                    </button>
                     <button class="top-icon" id="closeBtn" title="닫기">
                         <span class="material-icons">close</span>
                     </button>
                 </div>
             </div>
-            <div class="timer-badge" id="timerBadge">자동 실행 5초</div>
         </div>
 
         <!-- 상태/안내 영역 -->
@@ -1073,13 +1095,17 @@
             </div>
         </div>
 
+    <script src="./navigation-apps.js"></script>
     <script>
         const overlay = document.getElementById('lnOverlay');
         const lnSub = document.getElementById('lnSub');
         const btnArrow = document.getElementById('btnArrow');
         const header = document.querySelector('.header');
+        const themeBtn = document.getElementById('themeBtn');
+        const minimizeBtn = document.getElementById('minimizeBtn');
+        const tmapAppBtn = document.getElementById('tmapAppBtn');
+        const tmapIconImg = document.getElementById('tmapIconImg');
         const playBtn = document.getElementById('playBtn');
-        const timerBadge = document.getElementById('timerBadge');
         const circleTimerBtn = document.getElementById('circleTimerBtn');
         const circleTimerValue = document.getElementById('circleTimerValue');
         const plusTenBtn = document.getElementById('plusTenBtn');
@@ -1102,6 +1128,15 @@
         let dragBaseY = 0;
         let tmapStartOverlayEl = null;
         let tmapStartOverlayHideTimeout;
+
+        const tmapAppInfo = window.NAVIGATION_APPS?.SKT_MAP || null;
+        if (tmapAppInfo?.iconDataUri && tmapIconImg) {
+            tmapIconImg.src = tmapAppInfo.iconDataUri;
+            tmapIconImg.alt = `티맵 (${tmapAppInfo.packageName})`;
+        }
+        if (tmapAppInfo?.packageName && tmapAppBtn) {
+            tmapAppBtn.dataset.packageName = tmapAppInfo.packageName;
+        }
 
         function setSubExpanded(expanded) {
             lnSub.classList.toggle('collapsed', !expanded);
@@ -1160,10 +1195,23 @@
         document.getElementById('saveLocationBtn')?.addEventListener('click', () => {
             alert('현재 위치를 저장합니다');
         });
-        
-        // Minimize button
-        document.getElementById('minimizeBtn')?.addEventListener('click', () => {
-            setSubExpanded(false);
+
+        // Theme toggle
+        themeBtn?.addEventListener('click', () => {
+            document.body.classList.toggle('theme-dark');
+            const dark = document.body.classList.contains('theme-dark');
+            const icon = themeBtn.querySelector('.material-icons');
+            if (icon) icon.textContent = dark ? 'light_mode' : 'dark_mode';
+            themeBtn.title = dark ? '기본 테마' : '다크 테마';
+        });
+
+        // Minimize/expand toggle
+        minimizeBtn?.addEventListener('click', () => {
+            const collapsed = lnSub.classList.contains('collapsed');
+            setSubExpanded(collapsed);
+            const icon = minimizeBtn.querySelector('.material-icons');
+            if (icon) icon.textContent = collapsed ? 'fullscreen_exit' : 'open_in_full';
+            minimizeBtn.title = collapsed ? '축소' : '확대';
         });
 
         // Header tap/drag behavior (tap: toggle sub, drag: move overlay)
@@ -1289,14 +1337,6 @@
         }
 
         function updateCountdownUI() {
-            if (countdown > 0) {
-                timerBadge.style.display = 'block';
-                timerBadge.style.opacity = '1';
-                timerBadge.textContent = `자동 실행 ${countdown}초`;
-            } else {
-                timerBadge.style.opacity = '0';
-                timerBadge.style.display = 'none';
-            }
             if (circleTimerValue) {
                 circleTimerValue.textContent = String(Math.max(0, countdown));
             }
@@ -1320,7 +1360,7 @@
         }
 
         plusTenBtn?.addEventListener('click', () => {
-            countdown += 10;
+            countdown = Math.min(90, countdown + 10);
             updateCountdownUI();
             startCountdown();
         });
