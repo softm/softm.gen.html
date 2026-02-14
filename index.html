@@ -61,6 +61,101 @@
             position: relative;
         }
 
+        .compact-head-row,
+        .compact-ad-row,
+        .compact-quick-row {
+            display: none;
+        }
+
+        .compact-head-row {
+            align-items: center;
+            justify-content: space-between;
+            min-height: 50px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .compact-left,
+        .compact-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1;
+        }
+
+        .compact-right {
+            margin-left: auto;
+            padding-left: 28px;
+        }
+
+        .compact-handle {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 84px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .compact-handle::before {
+            content: "";
+            width: 56px;
+            height: 8px;
+            border-radius: 999px;
+            background: #5473db;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.55);
+        }
+
+        .compact-ad-row {
+            align-items: center;
+            justify-content: center;
+            background: #d9deea;
+            border: 1px dashed #b3bfd6;
+            color: #55627a;
+            border-radius: 12px;
+            min-height: 36px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .compact-quick-row {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .compact-dest-btn {
+            border: 1px solid #c2ccdf;
+            border-radius: 12px;
+            background: #edf1fa;
+            color: #334155;
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0 6px;
+        }
+
+        .compact-dest-btn .material-icons {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .compact-dest-label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         .top-group {
             display: flex;
             align-items: center;
@@ -149,6 +244,53 @@
             padding: var(--space-3) var(--space-4);
             border-top: 1px solid #e2e8f0;
             border-bottom: 1px solid #e2e8f0;
+        }
+
+        .speedometer-toggle-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: var(--space-2);
+        }
+
+        .speedometer-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            user-select: none;
+        }
+
+        .speedometer-toggle input {
+            appearance: none;
+            width: 38px;
+            height: 22px;
+            border-radius: 999px;
+            background: #cbd5e1;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .speedometer-toggle input::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ffffff;
+            transition: transform 0.2s;
+        }
+
+        .speedometer-toggle input:checked {
+            background: #3b82f6;
+        }
+
+        .speedometer-toggle input:checked::after {
+            transform: translateX(16px);
         }
 
         .destination-info {
@@ -351,9 +493,6 @@
         }
 
         .circle-timer.low-time {
-            background:
-                radial-gradient(circle at center, #fff4f4 62%, transparent 63%),
-                conic-gradient(#ef4444 0deg, #ef4444 270deg, #f3d3d3 270deg, #f3d3d3 360deg);
             box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
             color: #991b1b;
         }
@@ -792,6 +931,18 @@
             border-color: #334155;
         }
 
+        body.theme-dark .speedometer-toggle {
+            color: #cbd5e1;
+        }
+
+        body.theme-dark .speedometer-toggle input {
+            background: #475569;
+        }
+
+        body.theme-dark .speedometer-toggle input:checked {
+            background: #4c6fe4;
+        }
+
         body.theme-dark .destination-info {
             background: #293445;
             border-color: #475569;
@@ -803,6 +954,84 @@
 
         body.theme-dark .dest-text {
             color: #f8fafc;
+        }
+
+        body.theme-dark .location-card {
+            background: #2a3344;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+            border: 1px solid #41506a;
+        }
+
+        body.theme-dark .loc-title {
+            color: #f1f5f9;
+        }
+
+        body.theme-dark .loc-subtitle {
+            color: #aab6ca;
+        }
+
+        body.theme-dark .loc-time {
+            color: #8b9ab3;
+        }
+
+        body.theme-dark .loc-icon.home,
+        body.theme-dark .loc-icon.work,
+        body.theme-dark .loc-icon.recent,
+        body.theme-dark .loc-icon.star {
+            background: #334155;
+            color: #8ab4ff;
+        }
+
+        body.theme-dark .mode-tabs {
+            background: #263042;
+            border: 1px solid #42516c;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+        }
+
+        body.theme-dark .mode-tab {
+            color: #b9c7e6;
+        }
+
+        body.theme-dark .mode-tab.active {
+            background: #4c6fe4;
+            color: #f8fafc;
+            box-shadow: 0 2px 8px rgba(76, 111, 228, 0.35);
+        }
+
+        body.theme-dark .compact-ad-row {
+            background: #2b3344;
+            border-color: #4a5772;
+            color: #cbd5e1;
+        }
+
+        body.theme-dark .compact-dest-btn {
+            background: #2a3243;
+            border-color: #475670;
+            color: #e2e8f0;
+        }
+
+        .overlay-container.compact-header .toolbar-row {
+            display: none;
+        }
+
+        .overlay-container.compact-header .compact-head-row {
+            display: flex;
+        }
+
+        .overlay-container.compact-header .compact-ad-row {
+            display: flex;
+        }
+
+        .overlay-container.compact-header .compact-quick-row {
+            display: grid;
+        }
+
+        .overlay-container.compact-header .status-area,
+        .overlay-container.compact-header .control-section,
+        .overlay-container.compact-header .control-section-tight,
+        .overlay-container.compact-header .tab-content,
+        .overlay-container.compact-header .detail-sections {
+            display: none;
         }
 
         @media (max-width: 480px) {
@@ -830,6 +1059,15 @@
             .toolbar-handle::before {
                 width: 44px;
                 height: 7px;
+            }
+
+            .compact-handle::before {
+                width: 44px;
+                height: 7px;
+            }
+
+            .compact-right {
+                padding-left: 18px;
             }
 
             .tabs-row {
@@ -898,10 +1136,51 @@
                     </button>
                 </div>
             </div>
+
+            <div class="compact-head-row">
+                <div class="compact-left">
+                    <button class="top-icon" id="compactToggleBtn" title="확대">
+                        <span class="material-icons">open_in_full</span>
+                    </button>
+                </div>
+                <div class="compact-handle" aria-hidden="true"></div>
+                <div class="compact-right">
+                    <button class="circle-timer" id="circleTimerCompactBtn" title="자동 실행 타이머">
+                        <span id="circleTimerCompactValue">5</span>
+                    </button>
+                    <button class="plus-ten-btn" id="plusTenCompactBtn" title="자동 실행 10초 추가">+10초</button>
+                    <button class="top-icon" id="closeCompactBtn" title="닫기">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="compact-ad-row">광고</div>
+
+            <div class="compact-quick-row">
+                <button class="compact-dest-btn" data-dest="집" title="집">
+                    <span class="material-icons">home</span>
+                    <span class="compact-dest-label">집</span>
+                </button>
+                <button class="compact-dest-btn" data-dest="회사" title="회사">
+                    <span class="material-icons">business</span>
+                    <span class="compact-dest-label">회사</span>
+                </button>
+                <button class="compact-dest-btn" id="recentQuickDestBtn" data-dest="강남역 2번 출구" title="가장 최근 목적지">
+                    <span class="material-icons">history</span>
+                    <span class="compact-dest-label" id="recentQuickDestLabel">강남역 2번 출구</span>
+                </button>
+            </div>
         </div>
 
         <!-- 상태/안내 영역 -->
         <div class="status-area">
+            <div class="speedometer-toggle-row">
+                <label class="speedometer-toggle">
+                    <span>속도계</span>
+                    <input type="checkbox" id="speedometerToggle">
+                </label>
+            </div>
             <div class="destination-info">
                 <div class="dest-label">목적지</div>
                 <div class="dest-text" id="destText">목적지를 선택해주세요</div>
@@ -1103,12 +1382,22 @@
         const header = document.querySelector('.header');
         const themeBtn = document.getElementById('themeBtn');
         const minimizeBtn = document.getElementById('minimizeBtn');
+        const compactToggleBtn = document.getElementById('compactToggleBtn');
+        const compactHeadRow = document.querySelector('.compact-head-row');
+        const compactHandle = document.querySelector('.compact-handle');
+        const closeCompactBtn = document.getElementById('closeCompactBtn');
         const tmapAppBtn = document.getElementById('tmapAppBtn');
         const tmapIconImg = document.getElementById('tmapIconImg');
         const playBtn = document.getElementById('playBtn');
         const circleTimerBtn = document.getElementById('circleTimerBtn');
         const circleTimerValue = document.getElementById('circleTimerValue');
+        const circleTimerCompactBtn = document.getElementById('circleTimerCompactBtn');
+        const circleTimerCompactValue = document.getElementById('circleTimerCompactValue');
         const plusTenBtn = document.getElementById('plusTenBtn');
+        const plusTenCompactBtn = document.getElementById('plusTenCompactBtn');
+        const recentQuickDestBtn = document.getElementById('recentQuickDestBtn');
+        const recentQuickDestLabel = document.getElementById('recentQuickDestLabel');
+        const speedometerToggle = document.getElementById('speedometerToggle');
         const speedDisplay = document.getElementById('speedDisplay');
         const speedValue = document.getElementById('speedValue');
         const destText = document.getElementById('destText');
@@ -1128,6 +1417,10 @@
         let dragBaseY = 0;
         let tmapStartOverlayEl = null;
         let tmapStartOverlayHideTimeout;
+        let compactMode = false;
+        const maxCountdown = 90;
+        let speedometerEnabled = false;
+        let speedIntervalId;
 
         const tmapAppInfo = window.NAVIGATION_APPS?.SKT_MAP || null;
         if (tmapAppInfo?.iconDataUri && tmapIconImg) {
@@ -1185,6 +1478,16 @@
                 }
             });
         });
+
+        document.querySelectorAll('.compact-dest-btn[data-dest]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const dest = this.getAttribute('data-dest');
+                if (dest) {
+                    destText.textContent = `${dest}(으)로 출발합니다`;
+                    simulateMoving();
+                }
+            });
+        });
         
         // Search button
         document.getElementById('searchBtn')?.addEventListener('click', () => {
@@ -1205,17 +1508,34 @@
             themeBtn.title = dark ? '기본 테마' : '다크 테마';
         });
 
+        function setCompactMode(nextMode) {
+            compactMode = nextMode;
+            overlay.classList.toggle('compact-header', compactMode);
+            setSubExpanded(!compactMode);
+            const minIcon = minimizeBtn?.querySelector('.material-icons');
+            if (minIcon) minIcon.textContent = compactMode ? 'open_in_full' : 'fullscreen_exit';
+            if (minimizeBtn) minimizeBtn.title = compactMode ? '확대' : '축소';
+
+            const compactIcon = compactToggleBtn?.querySelector('.material-icons');
+            if (compactIcon) compactIcon.textContent = compactMode ? 'open_in_full' : 'fullscreen_exit';
+            if (compactToggleBtn) compactToggleBtn.title = compactMode ? '확대' : '축소';
+
+            requestAnimationFrame(positionCompactHandle);
+        }
+
         // Minimize/expand toggle
         minimizeBtn?.addEventListener('click', () => {
-            const collapsed = lnSub.classList.contains('collapsed');
-            setSubExpanded(collapsed);
-            const icon = minimizeBtn.querySelector('.material-icons');
-            if (icon) icon.textContent = collapsed ? 'fullscreen_exit' : 'open_in_full';
-            minimizeBtn.title = collapsed ? '축소' : '확대';
+            setCompactMode(!compactMode);
+        });
+
+        compactToggleBtn?.addEventListener('click', () => {
+            setCompactMode(!compactMode);
         });
 
         // Header tap/drag behavior (tap: toggle sub, drag: move overlay)
         header.addEventListener('pointerdown', (e) => {
+            // Let buttons handle click/toggle without drag capture interference.
+            if (e.target.closest('button')) return;
             dragging = true;
             moved = false;
             dragStartX = e.clientX;
@@ -1243,8 +1563,7 @@
             header.style.cursor = 'grab';
             header.releasePointerCapture(e.pointerId);
 
-            const tappedControl = e.target.closest('.top-icon');
-            if (!moved && !tappedControl) {
+            if (!moved) {
                 toggleSub();
             }
 
@@ -1256,8 +1575,7 @@
             header.style.cursor = 'grab';
         });
         
-        // Close button
-        document.getElementById('closeBtn')?.addEventListener('click', () => {
+        function closeOverlay() {
             overlay.style.transform = `translate(${overlayX}px, ${overlayY}px) scale(0.95)`;
             overlay.style.opacity = '0';
             setTimeout(() => {
@@ -1265,7 +1583,11 @@
                 overlay.style.transform = `translate(${overlayX}px, ${overlayY}px)`;
                 overlay.style.opacity = '1';
             }, 300);
-        });
+        }
+
+        // Close button
+        document.getElementById('closeBtn')?.addEventListener('click', closeOverlay);
+        closeCompactBtn?.addEventListener('click', closeOverlay);
 
         // Location cards - updated to work with data-dest attribute
         document.querySelectorAll('.location-card').forEach(card => {
@@ -1336,11 +1658,36 @@
             showTmapStartOverlay();
         }
 
+        function stopSpeedometerDisplay() {
+            clearTimeout(speedHideTimeout);
+            clearInterval(speedIntervalId);
+            speedIntervalId = null;
+            speedDisplay.classList.remove('visible');
+            isMoving = false;
+        }
+
+        function paintTimerRing(btn, remainingSeconds) {
+            if (!btn) return;
+            const ratio = Math.max(0, Math.min(1, remainingSeconds / maxCountdown));
+            const angle = Math.round(ratio * 360);
+            const low = remainingSeconds > 0 && remainingSeconds <= 3;
+            const center = low ? '#fff4f4' : '#eef2ff';
+            const active = low ? '#ef4444' : '#4f6fe1';
+            const track = low ? '#f3d3d3' : '#d8deed';
+            btn.style.background = `radial-gradient(circle at center, ${center} 62%, transparent 63%), conic-gradient(${active} 0deg, ${active} ${angle}deg, ${track} ${angle}deg, ${track} 360deg)`;
+        }
+
         function updateCountdownUI() {
             if (circleTimerValue) {
                 circleTimerValue.textContent = String(Math.max(0, countdown));
             }
+            if (circleTimerCompactValue) {
+                circleTimerCompactValue.textContent = String(Math.max(0, countdown));
+            }
             circleTimerBtn?.classList.toggle('low-time', countdown > 0 && countdown <= 3);
+            circleTimerCompactBtn?.classList.toggle('low-time', countdown > 0 && countdown <= 3);
+            paintTimerRing(circleTimerBtn, countdown);
+            paintTimerRing(circleTimerCompactBtn, countdown);
         }
 
         function startCountdown() {
@@ -1365,12 +1712,47 @@
             startCountdown();
         });
 
+        plusTenCompactBtn?.addEventListener('click', () => {
+            countdown = Math.min(90, countdown + 10);
+            updateCountdownUI();
+            startCountdown();
+        });
+
+        function positionCompactHandle() {
+            if (!compactHeadRow || !compactHandle || !compactToggleBtn || !circleTimerCompactBtn) return;
+            const rowRect = compactHeadRow.getBoundingClientRect();
+            const leftRect = compactToggleBtn.getBoundingClientRect();
+            const rightRect = circleTimerCompactBtn.getBoundingClientRect();
+            const midpoint = ((leftRect.left + leftRect.width / 2) + (rightRect.left + rightRect.width / 2)) / 2;
+            const localX = midpoint - rowRect.left;
+            compactHandle.style.left = `${localX}px`;
+        }
+
+        window.addEventListener('resize', positionCompactHandle);
+        positionCompactHandle();
+
+        speedometerToggle?.addEventListener('change', () => {
+            speedometerEnabled = speedometerToggle.checked;
+            if (!speedometerEnabled) {
+                stopSpeedometerDisplay();
+            }
+        });
+
+        // Sync compact "recent destination" with the first recent card.
+        const firstRecentCard = document.querySelector('#recentTab .location-card[data-dest]');
+        if (firstRecentCard && recentQuickDestBtn) {
+            const recentDest = firstRecentCard.getAttribute('data-dest') || '강남역 2번 출구';
+            recentQuickDestBtn.setAttribute('data-dest', recentDest);
+            if (recentQuickDestLabel) recentQuickDestLabel.textContent = recentDest;
+        }
+
         // Timer countdown
         updateCountdownUI();
         startCountdown();
 
         // Simulate moving (speed display)
         function simulateMoving() {
+            if (!speedometerEnabled) return;
             if (isMoving) return;
             
             isMoving = true;
@@ -1378,10 +1760,11 @@
             
             // Clear existing timeout
             clearTimeout(speedHideTimeout);
+            clearInterval(speedIntervalId);
             
             // Animate speed
             let currentSpeed = 0;
-            const speedInterval = setInterval(() => {
+            speedIntervalId = setInterval(() => {
                 currentSpeed += Math.floor(Math.random() * 10) + 5;
                 if (currentSpeed > 70) currentSpeed = Math.floor(Math.random() * 20) + 50;
                 speedValue.textContent = currentSpeed;
@@ -1390,7 +1773,8 @@
             // Hide after 5 seconds
             speedHideTimeout = setTimeout(() => {
                 speedDisplay.classList.remove('visible');
-                clearInterval(speedInterval);
+                clearInterval(speedIntervalId);
+                speedIntervalId = null;
                 isMoving = false;
             }, 5000);
         }
